@@ -1,0 +1,100 @@
+,V
+"""""""""""""""""""""""""""""",V
+" => Load pathogen paths,V
+call pathogen#helptags(),V
+call pathogen#infect('~/.vim_runtime/sources_non_forked/{}'),V
+call pathogen#infect('~/.vim_runtime/sources_forked/{}'),V
+import "fmt",V
+func BenchmarkMarshalJson(b *testing.B) {	m := New()	// Insert 100 elements.	for i := 0; i < 10000; i++ {		m.Set(strconv.Itoa(i), Animal{strconv.Itoa(i)})	}	for i := 0; i < b.N; i++ {		m.MarshalJSON()	}}func BenchmarkStrconv(b *testing.B) {	for i := 0; i < b.N; i++ {		strconv.Itoa(i)	}}func BenchmarkSingleInsertAbsent(b *testing.B) {	m := New()	b.ResetTimer()	for i := 0; i < b.N; i++ {		m.Set(strconv.Itoa(i), "value")	}}func BenchmarkSingleInsertPresent(b *testing.B) {	m := New()	m.Set("key", "value")	b.ResetTimer()	for i := 0; i < b.N; i++ {		m.Set("key", "value")	}}func benchmarkMultiInsertDifferent(b *testing.B) {	m := New()	finished := make(chan struct{}, b.N)	_, set := GetSet(m, finished)	b.ResetTimer()	for i := 0; i < b.N; i++ {		set(strconv.Itoa(i), "value")	}	for i := 0; i < b.N; i++ {		<-finished	}}func BenchmarkMultiInsertDifferent_1_Shard(b *testing.B) {	runWithShards(benchmarkMultiInsertDifferent, b, 1),V
+cd "$(brew --repo)/Library/Taps/homebrew/homebrew-core"git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-core.git,v
+for i := 0; i < 10000; i++ {         m.Set(strconv.Itoa(i), 0)     },v
+func BenchmarkMarshalJson(b *testing.B) {	m := New()	// Insert 100 elements.	for i := 0; i < 10000; i++ {		m.Set(strconv.Itoa(i), Animal{strconv.Itoa(i)})	}	for i := 0; i < b.N; i++ {		m.MarshalJSON()	}}func BenchmarkStrconv(b *testing.B) {	for i := 0; i < b.N; i++ {		strconv.Itoa(i)	}}func BenchmarkSingleInsertAbsent(b *testing.B) {	m := New()	b.ResetTimer()	for i := 0; i < b.N; i++ {		m.Set(strconv.Itoa(i), "value")	}}func BenchmarkSingleInsertPresent(b *testing.B) {	m := New()	m.Set("key", "value")	b.ResetTimer()	for i := 0; i < b.N; i++ {		m.Set("key", "value")	}}func benchmarkMultiInsertDifferent(b *testing.B) {	m := New()	finished := make(chan struct{}, b.N)	_, set := GetSet(m, finished)	b.ResetTimer()	for i := 0; i < b.N; i++ {		set(strconv.Itoa(i), "value")	}	for i := 0; i < b.N; i++ {		<-finished	}}func BenchmarkMultiInsertDifferent_1_Shard(b *testing.B) {	runWithShards(benchmarkMultiInsertDifferent, b, 1)}func BenchmarkMultiInsertDifferent_16_Shard(b *testing.B) {	runWithShards(benchmarkMultiInsertDifferent, b, 16)}func BenchmarkMultiInsertDifferent_32_Shard(b *testing.B) {	runWithShards(benchmarkMultiInsertDifferent, b, 32)}func BenchmarkMultiInsertDifferent_256_Shard(b *testing.B) {	runWithShards(benchmarkMultiGetSetDifferent, b, 256)}func BenchmarkMultiInsertSame(b *testing.B) {	m := New()	finished := make(chan struct{}, b.N)	_, set := GetSet(m, finished)	m.Set("key", "value")	b.ResetTimer()	for i := 0; i < b.N; i++ {		set("key", "value")	}	for i := 0; i < b.N; i++ {		<-finished	}}func BenchmarkMultiGetSame(b *testing.B) {	m := New()	finished := make(chan struct{}, b.N)	get, _ := GetSet(m, finished)	m.Set("key", "value")	b.ResetTimer()	for i := 0; i < b.N; i++ {		get("key", "value")	}	for i := 0; i < b.N; i++ {		<-finished	}}func benchmarkMultiGetSetDifferent(b *testing.B) {	m := New()	finished := make(chan struct{}, 2*b.N)	get, set := GetSet(m, finished)	m.Set("-1", "value")	b.ResetTimer()	for i := 0; i < b.N; i++ {		set(strconv.Itoa(i-1), "value")		get(strconv.Itoa(i), "value")	}	for i := 0; i < 2*b.N; i++ {		<-finished	}}func BenchmarkMultiGetSetDifferent_1_Shard(b *testing.B) {	runWithShards(benchmarkMultiGetSetDifferent, b, 1)}func BenchmarkMultiGetSetDifferent_16_Shard(b *testing.B) {	runWithShards(benchmarkMultiGetSetDifferent, b, 16)}func BenchmarkMultiGetSetDifferent_32_Shard(b *testing.B) {	runWithShards(benchmarkMultiGetSetDifferent, b, 32)}func BenchmarkMultiGetSetDifferent_256_Shard(b *testing.B) {	runWithShards(benchmarkMultiGetSetDifferent, b, 256)}func benchmarkMultiGetSetBlock(b *testing.B) {	m := New()	finished := make(chan struct{}, 2*b.N)	get, set := GetSet(m, finished)	for i := 0; i < b.N; i++ {		m.Set(strconv.Itoa(i%100), "value")	}	b.ResetTimer()	for i := 0; i < b.N; i++ {		set(strconv.Itoa(i%100), "value")		get(strconv.Itoa(i%100), "value")	}	for i := 0; i < 2*b.N; i++ {		<-finished	}}func BenchmarkMultiGetSetBlock_1_Shard(b *testing.B) {	runWithShards(benchmarkMultiGetSetBlock, b, 1)}func BenchmarkMultiGetSetBlock_16_Shard(b *testing.B) {	runWithShards(benchmarkMultiGetSetBlock, b, 16)}func BenchmarkMultiGetSetBlock_32_Shard(b *testing.B) {	runWithShards(benchmarkMultiGetSetBlock, b, 32)}func BenchmarkMultiGetSetBlock_256_Shard(b *testing.B) {	runWithShards(benchmarkMultiGetSetBlock, b, 256)}func GetSet(m ConcurrentMap, finished chan struct{}) (set func(key, value string), get func(key, value string)) {	return func(key, value string) {			for i := 0; i < 10; i++ {				m.Get(key)			}			finished <- struct{}{}		}, func(key, value string) {			for i := 0; i < 10; i++ {				m.Set(key, value)			}			finished <- struct{}{}		}}func runWithShards(bench func(b *testing.B), b *testing.B, shardsCount int) {	oldShardsCount := SHARD_COUNT	SHARD_COUNT = shardsCount	bench(b)	SHARD_COUNT = oldShardsCount}func BenchmarkKeys(b *testing.B) {	m := New()	// Insert 100 elements.	for i := 0; i < 10000; i++ {		m.Set(strconv.Itoa(i), Animal{strconv.Itoa(i)})	}	for i := 0; i < b.N; i++ {		m.Keys()	}},V
+Animal{strconv.Itoa(i)}),v
+github.com/orcaman/concurrent-map,v
+	set("string",3),V
+.,v
+gmap,v
+[,v
+ = v,v
+,v ,v
+func set(k,v interface{}) {	gmap.Lock()	gmap.item[k] = v	gmap.Unlock()},V
+func set(k,v interface{}) {	gmap.Lock()	gmap.item[k] = v	gmap.Unlock(),V
+1,v
+	fmt.Println(gmap[1]),V
+2,v
+	set(1,2),V
+i,v
+tem: ,v
+,,v
+),v
+(,v
+make,v
+m,v
+	set(,V
+cn_office_professional_plus_2016_x86_x64_dvd_6969182.iso,v
+test,v
+L,v
+	gmap.Lock(),V
+Doe,v
+WZ4H3-AXQVW-H4XFW-WY2NJ-5LGD3,v
+categories,v
+John ,v
+#,v
+Deployer not found: git,v
+npm install hexo-deployer-git --save,V
+landscape,v
+https://github.com/geniuscarey/geniuscarey.github.io.git,v
+_vim_files: function definition file not found,v
+https://github.com/iissnan/hexo-theme-next themes/next,v
+~/Code/golang,v
+/Users/hanxu/Code/golang/bin,v
+O,v
+G,v
+export GOPATH=~/Code/golang,V
+gn,v
+UnreachableMember,v
+func(g *gossiper) GossipToUnreachableMember() {},V
+	return false,V
+bool ,v
+ ,v
+LiveMember,v
+func(g *gossiper) GossipToLiveMember() bool {	return false},V
+;,v
+CheckStatus,v
+func(g *gossiper) CheckStatus() {},V
+	,v
+func (gd *GossipDigest) ToString() string {	return fmt.Sprintf("%#v", *gd)},V
+, 100),v
+gDigests,v
+run,v
+func (g *gossiper) run() {,V
+epState ,v
+Get,v
+return ,v
+Heartbeat ,v
+func (e *Endpoint) GetHeartbeat() Heartbeat {    return e.hb},V
+unreachable,v
+	unreachableEndpoints map[InetAddress]bool,V
+unreachableEndpoints ,v
+live,v
+	liveEndpoints map[InetAddress]bool,V
+long	,v
+interval ,v
+intervalMs ,v
+_,v
+),V
+var (,V
+	interval_ms ,V
+	,V
+    aw.tLast = value,V
+    ,V
+github.com/geniuscarey/fd,v
+http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jdk-8u121-macosx-x64.dmg,v
+    ts->,V
+我就申请退款了，怎么还没处理啊？,v
+yun.baidu.com/share/home?uk=1174808620,v
+inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"    "回车即选中当前项,V
+set completeopt=longest,menu	"让Vim的补全菜单行为与一般IDE一致(参考VimTip1228)autocmd InsertLeave * if pumvisible() == 0|pclose|endif	"离开插入模式后自动关闭预览窗口inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"	"回车即选中当前项"上下左右键的行为 会显示其他信息inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>""youcompleteme  默认tab  s-tab 和自动补全冲突"let g:ycm_key_list_select_completion=['<c-n>']let g:ycm_key_list_select_completion = ['<Down>']"let g:ycm_key_list_previous_completion=['<c-p>']let g:ycm_key_list_previous_completion = ['<Up>']let g:ycm_confirm_extra_conf=0 "关闭加载.ycm_extra_conf.py提示let g:ycm_collect_identifiers_from_tags_files=1	" 开启 YCM 基于标签引擎let g:ycm_min_num_of_chars_for_completion=2	" 从第2个键入字符就开始罗列匹配项let g:ycm_cache_omnifunc=0	" 禁止缓存匹配项,每次都重新生成匹配项let g:ycm_seed_identifiers_with_syntax=1	" 语法关键字补全nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>	"force recomile with syntastic"nnoremap <leader>lo :lopen<CR>	"open locationlist"nnoremap <leader>lc :lclose<CR>	"close locationlistinoremap <leader><leader> <C-x><C-o>"在注释输入中也能补全let g:ycm_complete_in_comments = 1"在字符串输入中也能补全let g:ycm_complete_in_strings = 1"注释和字符串中的文字也会被收入补全let g:ycm_collect_identifiers_from_comments_and_strings = 0nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR> " 跳转到定义处,v
+""let g:ycm_key_list_previous_completion=['<c-p>'],V
+""youcompleteme  默认tab  s-tab 和自动补全冲突"let g:ycm_key_list_select_completion=['<c-n>']"let g:ycm_key_list_select_completion = ['<Down>'],V
+   "force recomile with syntastic,v
